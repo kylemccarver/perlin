@@ -5,6 +5,7 @@
 #include "render_pass.h"
 #include "config.h"
 #include "gui.h"
+#include "perlin.h"
 
 #include <algorithm>
 #include <fstream>
