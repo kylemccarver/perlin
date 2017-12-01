@@ -1,3 +1,6 @@
+// 3D Perlin Noise implementation
+// Adapted from: http://flafla2.github.io/2014/08/09/perlinnoise.html
+
 #ifndef PERLIN_H
 #define PERLIN_H
 

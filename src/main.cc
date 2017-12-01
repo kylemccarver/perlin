@@ -22,7 +22,7 @@
 using namespace std;
 
 int window_width = 800, window_height = 600;
-const std::string window_title = "Skinning";
+const std::string window_title = "Perlin";
 
 const char* vertex_shader =
 #include "shaders/default.vert"
@@ -44,6 +44,66 @@ const char* floor_fragment_shader =
 
 void ErrorCallback(int error, const char* description) {
 	std::cerr << "GLFW Error: " << description << "\n";
+}
+
+// Height map variables
+const int mapSizeX = 64;
+const int mapSizeZ = 64;
+const int mapSizeY = 64;
+double heightScale = 3.0;
+double noiseScale = 0.05;
+double heightMap[mapSizeX][mapSizeZ][mapSizeY];
+
+void generateHeightMap()
+{
+	Perlin noise;
+	for(int x = 0; x < mapSizeX; ++x)
+	{
+		for(int y = 0; y < mapSizeY; ++y)
+		{
+			for(int z = 0; z < mapSizeZ; ++z)
+			{
+				heightMap[x][y][z] = heightScale * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+			}
+		}
+	}
+}
+
+// Terrain variables
+double minX = 0.0;
+double maxX = 10.0;
+double dX = (maxX - minX) / (mapSizeX - 1);
+double minZ = 0.0;
+double maxZ = 10.0;
+double dZ = (maxZ - minZ) / (mapSizeZ - 1);
+
+void generateTerrain(vector<glm::vec4>& terrain_vertices, vector<glm::uvec3>& terrain_faces, int level)
+{
+	for(int x = 0; x < mapSizeX; ++x)
+	{
+		for(int z = 0; z < mapSizeZ; ++z)
+		{
+			double posX = minX + x * dX;
+			double posZ = minZ + z * dZ;
+			double posY = heightMap[x][z][level];
+
+			terrain_vertices.push_back(glm::vec4(posX, posY, posZ, 1.0));
+		}
+	}
+
+	for(int x = 0; x < mapSizeX - 1; ++x)
+	{
+		for(int z = 0; z < mapSizeZ - 1; ++z)
+		{
+			int v1 = x + z * mapSizeX;
+			int v2 = x + z * mapSizeX + 1;
+			int v3 = x + (z + 1) * mapSizeX;
+			int v4 = x + (z + 1) * mapSizeX + 1;
+
+			terrain_faces.push_back(glm::uvec3(v1, v2, v3));
+			terrain_faces.push_back(glm::uvec3(v4, v3, v2));
+		}
+	}
 }
 
 GLFWwindow* init_glefw()
@@ -80,17 +140,21 @@ int main(int argc, char* argv[])
 	// }
 	GLFWwindow *window = init_glefw();
 
-	// Display noise to user here
-
 	GUI gui(window);
 
 	std::vector<glm::vec4> floor_vertices;
 	std::vector<glm::uvec3> floor_faces;
-	create_floor(floor_vertices, floor_faces);
+	//create_floor(floor_vertices, floor_faces);
 
 	// FIXME: add code to create terrain geometry
+	vector<glm::vec4> terrain_vertices;
+	vector<glm::uvec3> terrain_faces;
+	int level = 0;
 
-	glm::vec4 light_position = glm::vec4(0.0f, 100.0f, 0.0f, 1.0f);
+	generateHeightMap();
+	generateTerrain(floor_vertices, floor_faces, level);
+
+	glm::vec4 light_position = glm::vec4(0.0f, 10.0f,0.0f, 1.0f);
 	MatrixPointers mats; // Define MatrixPointers here for lambda to capture
 	/*
 	 * In the following we are going to define several lambda functions to bind Uniforms.
@@ -175,6 +239,15 @@ int main(int argc, char* argv[])
 
 	// FIXME: Create the RenderPass objects for terrain here.
 	//        Otherwise do whatever you like.
+	RenderDataInput terrain_pass_input;
+	terrain_pass_input.assign(0, "vertex_position", terrain_vertices.data(), terrain_vertices.size(), 4, GL_FLOAT);
+	terrain_pass_input.assign_index(terrain_faces.data(), terrain_faces.size(), 3);
+	RenderPass terrain_pass(-1,
+			terrain_pass_input,
+			{ vertex_shader, geometry_shader, fragment_shader },
+			{ std_view, std_proj, std_light, std_camera },
+			{ "fragment_color" }
+			);
 
 	RenderDataInput floor_pass_input;
 	floor_pass_input.assign(0, "vertex_position", floor_vertices.data(), floor_vertices.size(), 4, GL_FLOAT);
