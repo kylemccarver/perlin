@@ -50,7 +50,7 @@ void ErrorCallback(int error, const char* description) {
 const int mapSizeX = 64;
 const int mapSizeZ = 64;
 const int mapSizeY = 64;
-double heightScale = 3.0;
+double heightScale = 1.0;
 double noiseScale = 0.05;
 double heightMap[mapSizeX][mapSizeZ][mapSizeY];
 
@@ -77,7 +77,7 @@ double minZ = 0.0;
 double maxZ = 10.0;
 double dZ = (maxZ - minZ) / (mapSizeZ - 1);
 
-void generateTerrain(vector<glm::vec4>& terrain_vertices, vector<glm::uvec3>& terrain_faces, int level)
+void generateTerrain(vector<glm::vec4>& vertices, vector<glm::uvec3>& indices, int level)
 {
 	for(int x = 0; x < mapSizeX; ++x)
 	{
@@ -87,7 +87,7 @@ void generateTerrain(vector<glm::vec4>& terrain_vertices, vector<glm::uvec3>& te
 			double posZ = minZ + z * dZ;
 			double posY = heightMap[x][z][level];
 
-			terrain_vertices.push_back(glm::vec4(posX, posY, posZ, 1.0));
+			vertices.push_back(glm::vec4(posX, posY, posZ, 1.0));
 		}
 	}
 
@@ -100,8 +100,8 @@ void generateTerrain(vector<glm::vec4>& terrain_vertices, vector<glm::uvec3>& te
 			int v3 = x + (z + 1) * mapSizeX;
 			int v4 = x + (z + 1) * mapSizeX + 1;
 
-			terrain_faces.push_back(glm::uvec3(v1, v2, v3));
-			terrain_faces.push_back(glm::uvec3(v4, v3, v2));
+			indices.push_back(glm::uvec3(v1, v2, v3));
+			indices.push_back(glm::uvec3(v4, v3, v2));
 		}
 	}
 }
@@ -149,10 +149,10 @@ int main(int argc, char* argv[])
 	// FIXME: add code to create terrain geometry
 	vector<glm::vec4> terrain_vertices;
 	vector<glm::uvec3> terrain_faces;
-	int level = 0;
+	int level = 1;
 
 	generateHeightMap();
-	generateTerrain(floor_vertices, floor_faces, level);
+	generateTerrain(floor_vertices, floor_faces, 0);
 
 	glm::vec4 light_position = glm::vec4(0.0f, 10.0f,0.0f, 1.0f);
 	MatrixPointers mats; // Define MatrixPointers here for lambda to capture
@@ -279,12 +279,34 @@ int main(int argc, char* argv[])
 
 		gui.updateMatrices();
 		mats = gui.getMatrixPointers();
+		bool advanceFrame = gui.advanceFrame();
 
-		if (draw_floor) {
-			floor_pass.setup();
-			// Draw our triangles.
-			CHECK_GL_ERROR(glDrawElements(GL_TRIANGLES, floor_faces.size() * 3, GL_UNSIGNED_INT, 0));
+		// if (draw_floor) {
+			
+		// }
+		if(advanceFrame)
+		{
+			//gui.stopAdvance();
+			if(level > 63)
+				level = 0;
+
+			floor_vertices.clear();
+			floor_faces.clear();
+
+			generateTerrain(floor_vertices, floor_faces, level);
+			floor_pass.updateVBO(0, floor_vertices.data(), floor_vertices.size());
+			floor_pass = RenderPass(floor_pass.getVAO(),
+					floor_pass_input,
+					{ vertex_shader, geometry_shader, floor_fragment_shader },
+					{ floor_model, std_view, std_proj, std_light },
+					{ "fragment_color "}
+					);
+
 		}
+		floor_pass.setup();
+		// Draw our triangles.
+		CHECK_GL_ERROR(glDrawElements(GL_TRIANGLES, floor_faces.size() * 3, GL_UNSIGNED_INT, 0));
+		++level;
 		if (draw_object) {
 				// mesh.updateAnimation();
 				// object_pass.updateVBO(0,

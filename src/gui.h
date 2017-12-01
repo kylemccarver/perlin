@@ -34,6 +34,8 @@ public:
 	const float* getLightPositionPtr() const { return &light_position_[0]; }
 
 	bool isTransparent() const { return transparent_; }
+	bool advanceFrame() { return advance; }
+	void stopAdvance() { advance = false; }
 private:
 	GLFWwindow* window_;
 
@@ -50,6 +52,7 @@ private:
 	float rotation_speed_ = 0.02f;
 	float zoom_speed_ = 0.1f;
 	float aspect_;
+	bool advance = false;
 
 	glm::vec3 eye_ = glm::vec3(5.0f, 1.0f, camera_distance_);
 	glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);

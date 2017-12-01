@@ -47,6 +47,9 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 	} else if (key == GLFW_KEY_T && action != GLFW_RELEASE) {
 		transparent_ = !transparent_;
 	}
+	else if (key == GLFW_KEY_SPACE && action != GLFW_RELEASE) {
+		advance = true;
+	}
 }
 
 void GUI::mousePosCallback(double mouse_x, double mouse_y)
