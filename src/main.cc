@@ -47,23 +47,45 @@ void ErrorCallback(int error, const char* description) {
 }
 
 // Height map variables
-const int mapSizeX = 64;
-const int mapSizeZ = 64;
-const int mapSizeY = 64;
+const int mapSizeX = 128;
+const int mapSizeZ = 128;
+const int mapSizeY = 128;
 double heightScale = 1.0;
 double noiseScale = 0.05;
 double heightMap[mapSizeX][mapSizeZ][mapSizeY];
 
-void generateHeightMap()
+void generateHeightMap(int type)
 {
-	Perlin noise;
-	for(int x = 0; x < mapSizeX; ++x)
+	// Perlin noise
+	if(type == 1)
 	{
-		for(int y = 0; y < mapSizeY; ++y)
+		Perlin noise;
+		for(int x = 0; x < mapSizeX; ++x)
 		{
-			for(int z = 0; z < mapSizeZ; ++z)
+			for(int y = 0; y < mapSizeY; ++y)
 			{
-				heightMap[x][y][z] = heightScale * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+				for(int z = 0; z < mapSizeZ; ++z)
+				{
+					heightMap[x][y][z] = heightScale * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+				}
+			}
+		}
+	}
+	else if(type == 2)
+	{
+		Perlin noise;
+		double xPeriod = 5.0;
+		double yPeriod = 5.0;
+		double turbPower = 5.0;
+		for(int x = 0; x < mapSizeX; ++x)
+		{
+			for(int y = 0; y < mapSizeY; ++y)
+			{
+				for(int z = 0; z < mapSizeZ; ++z)
+				{
+					double val = x * xPeriod / mapSizeX + y * yPeriod / mapSizeY + turbPower * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					heightMap[x][y][z] = fabs(sin(val * 3.14159));
+				}
 			}
 		}
 	}
@@ -151,10 +173,10 @@ int main(int argc, char* argv[])
 	vector<glm::uvec3> terrain_faces;
 	int level = 1;
 
-	generateHeightMap();
+	generateHeightMap(1);
 	generateTerrain(floor_vertices, floor_faces, 0);
 
-	glm::vec4 light_position = glm::vec4(0.0f, 10.0f,0.0f, 1.0f);
+	glm::vec4 light_position = glm::vec4(5.0f, 10.0f, 5.0f, 1.0f);
 	MatrixPointers mats; // Define MatrixPointers here for lambda to capture
 	/*
 	 * In the following we are going to define several lambda functions to bind Uniforms.
@@ -280,13 +302,30 @@ int main(int argc, char* argv[])
 		gui.updateMatrices();
 		mats = gui.getMatrixPointers();
 		bool advanceFrame = gui.advanceFrame();
+		bool dirty = gui.isDirty();
 
-		// if (draw_floor) {
-			
-		// }
+		if(dirty)
+		{
+			gui.setClean();
+			gui.stopAdvance();
+
+			generateHeightMap(gui.getMapType());
+
+			floor_vertices.clear();
+			floor_faces.clear();
+
+			generateTerrain(floor_vertices, floor_faces, 0);
+			floor_pass.updateVBO(0, floor_vertices.data(), floor_vertices.size());
+			floor_pass = RenderPass(floor_pass.getVAO(),
+					floor_pass_input,
+					{ vertex_shader, geometry_shader, floor_fragment_shader },
+					{ floor_model, std_view, std_proj, std_light },
+					{ "fragment_color "}
+					);
+		}
+
 		if(advanceFrame)
 		{
-			//gui.stopAdvance();
 			if(level > 63)
 				level = 0;
 

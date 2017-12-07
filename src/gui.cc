@@ -48,7 +48,25 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		transparent_ = !transparent_;
 	}
 	else if (key == GLFW_KEY_SPACE && action != GLFW_RELEASE) {
-		advance = true;
+		advance = !advance;
+	}
+	else if(key == GLFW_KEY_1)
+	{
+		if(mapType != 1)
+		{
+			mapType = 1;
+			dirty = true;
+			advance = false;
+		}
+	}
+	else if(key == GLFW_KEY_2)
+	{
+		if(mapType != 2)
+		{
+			mapType = 2;
+			dirty = true;
+			advance = false;
+		}
 	}
 }
 
