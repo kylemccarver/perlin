@@ -68,6 +68,15 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 			advance = false;
 		}
 	}
+	else if(key == GLFW_KEY_3)
+	{
+		if(mapType != 3)
+		{
+			mapType = 3;
+			dirty = true;
+			advance = false;
+		}
+	}
 }
 
 void GUI::mousePosCallback(double mouse_x, double mouse_y)

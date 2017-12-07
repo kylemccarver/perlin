@@ -76,15 +76,34 @@ void generateHeightMap(int type)
 		Perlin noise;
 		double xPeriod = 5.0;
 		double yPeriod = 5.0;
-		double turbPower = 5.0;
+		double power = 5.0;
 		for(int x = 0; x < mapSizeX; ++x)
 		{
 			for(int y = 0; y < mapSizeY; ++y)
 			{
 				for(int z = 0; z < mapSizeZ; ++z)
 				{
-					double val = x * xPeriod / mapSizeX + y * yPeriod / mapSizeY + turbPower * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					double val = x * xPeriod / mapSizeX + y * yPeriod / mapSizeY + power * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
 					heightMap[x][y][z] = fabs(sin(val * 3.14159));
+				}
+			}
+		}
+	}
+	else if(type == 3)
+	{
+		Perlin noise;
+		double period = 5.0;
+		double power = 0.1;
+		for(int x = 0; x < mapSizeX; ++x)
+		{
+			for(int y = 0; y < mapSizeY; ++y)
+			{
+				for(int z = 0; z < mapSizeZ; ++z)
+				{
+					double xVal = (x - mapSizeX / 2) / (double)mapSizeX;
+					double yVal = (y - mapSizeY / 2) / (double)mapSizeY;
+					double dist = sqrt(xVal * xVal + yVal * yVal) + power * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					heightMap[x][y][z] = fabs(sin(2 * period * dist * 3.14159));
 				}
 			}
 		}
