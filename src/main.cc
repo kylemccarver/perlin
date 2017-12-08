@@ -62,6 +62,7 @@ void generateHeightMap(int type, GUI& gui)
 	// Perlin noise
 	if(type == 1)
 	{
+		heightScale = gui.getHeight();
 		Perlin noise;
 		for(int x = 0; x < mapSizeX; ++x)
 		{

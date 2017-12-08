@@ -30,15 +30,6 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		glfwSetWindowShouldClose(window_, GL_TRUE);
 		return ;
 	}
-	if (key == GLFW_KEY_J && action == GLFW_RELEASE) {
-		//FIXME save out a screenshot using SaveJPEG
-		// int width, height;
-        // glfwGetWindowSize(window_, &width, &height);
-        // unsigned char* data = new unsigned char[width * height * 3];
-		// glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-		
-        // SaveJPEG("capture.jpg", width, height, data);
-	}
 
 	if (captureWASDUPDOWN(key, action))
 		return ;
@@ -99,9 +90,9 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 	}
 	else if(key == GLFW_KEY_COMMA && action != GLFW_RELEASE)
 	{
-		if(mapType == 2 && sinPow > 1.0)
+		if(mapType == 2 && sinPow >= 1.0)
 			sinPow -= 1.0;
-		else if(mapType == 3 && ringPow > 0.1)
+		else if(mapType == 3 && ringPow >= 0.1)
 			ringPow -= 0.1;
 		dirty = true;
 		advance = false;
@@ -112,6 +103,18 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 			sinPow += 1.0;
 		else if(mapType == 3)
 			ringPow += 0.1;
+		dirty = true;
+		advance = false;
+	}
+	else if(key == GLFW_KEY_LEFT && action != GLFW_RELEASE)
+	{
+		height -= 1.0;
+		dirty = true;
+		advance = false;
+	}
+	else if(key == GLFW_KEY_RIGHT && action != GLFW_RELEASE)
+	{
+		height += 1.0;
 		dirty = true;
 		advance = false;
 	}
@@ -144,6 +147,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 void GUI::reset()
 {
 	octaves = 1;
+	height = 1.0;
 	persistence = 0.1;
 	sinPow = 0.0;
 	ringPow = 0.0;

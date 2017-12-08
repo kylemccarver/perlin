@@ -42,6 +42,7 @@ public:
 
 	bool useOctaves() { return toggleOctave; }
 	int numOctaves() { return octaves; }
+	double getHeight() { return height; }
 	double getPersistence() { return persistence; }
 	double getSinPow() { return sinPow; }
 	double getRingPow() { return ringPow; }
@@ -69,6 +70,7 @@ private:
 
 	bool toggleOctave = false;
 	int octaves = 1;
+	double height = 1.0;
 	double persistence = 0.1;
 	double sinPow = 0.0;
 	double ringPow = 0.0;
