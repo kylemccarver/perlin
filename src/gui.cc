@@ -1,6 +1,6 @@
 #include "gui.h"
 #include "config.h"
-#include <jpegio.h>
+//#include <jpegio.h>
 #include <iostream>
 #include <debuggl.h>
 #include <glm/gtc/matrix_access.hpp>
@@ -32,12 +32,12 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 	}
 	if (key == GLFW_KEY_J && action == GLFW_RELEASE) {
 		//FIXME save out a screenshot using SaveJPEG
-		int width, height;
-        glfwGetWindowSize(window_, &width, &height);
-        unsigned char* data = new unsigned char[width * height * 3];
-		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+		// int width, height;
+        // glfwGetWindowSize(window_, &width, &height);
+        // unsigned char* data = new unsigned char[width * height * 3];
+		// glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 		
-        SaveJPEG("capture.jpg", width, height, data);
+        // SaveJPEG("capture.jpg", width, height, data);
 	}
 
 	if (captureWASDUPDOWN(key, action))
@@ -50,33 +50,105 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 	else if (key == GLFW_KEY_SPACE && action != GLFW_RELEASE) {
 		advance = !advance;
 	}
-	else if(key == GLFW_KEY_1)
+	else if(key == GLFW_KEY_R && action != GLFW_RELEASE)
+	{
+		this->reset();
+	}
+	else if(key == GLFW_KEY_O && action != GLFW_RELEASE)
+	{
+		toggleOctave = !toggleOctave;
+		this->reset();
+	}
+	else if(key == GLFW_KEY_LEFT_BRACKET && action != GLFW_RELEASE)
+	{
+		if(toggleOctave)
+		{
+			if(octaves > 1)
+				--octaves;
+			dirty = true;
+			advance = false;
+		}
+	}
+	else if(key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
+	{
+		if(toggleOctave)
+		{
+			++octaves;
+			dirty = true;
+			advance = false;
+		}
+	}
+	else if(key == GLFW_KEY_SEMICOLON && action != GLFW_RELEASE)
+	{
+		if(toggleOctave)
+		{
+			if(persistence > 0.1)
+				persistence -= 0.1;
+			dirty = true;
+			advance = false;
+		}
+	}
+	else if(key == GLFW_KEY_APOSTROPHE && action != GLFW_RELEASE)
+	{
+		if(toggleOctave)
+		{
+			persistence += 0.1;
+			dirty = true;
+			advance = false;
+		}
+	}
+	else if(key == GLFW_KEY_COMMA && action != GLFW_RELEASE)
+	{
+		if(mapType == 2 && sinPow > 1.0)
+			sinPow -= 1.0;
+		else if(mapType == 3 && ringPow > 0.1)
+			ringPow -= 0.1;
+		dirty = true;
+		advance = false;
+	}
+	else if(key == GLFW_KEY_PERIOD && action != GLFW_RELEASE)
+	{
+		if(mapType == 2)
+			sinPow += 1.0;
+		else if(mapType == 3)
+			ringPow += 0.1;
+		dirty = true;
+		advance = false;
+	}
+	else if(key == GLFW_KEY_1 && action != GLFW_RELEASE)
 	{
 		if(mapType != 1)
 		{
 			mapType = 1;
-			dirty = true;
-			advance = false;
+			this->reset();
 		}
 	}
-	else if(key == GLFW_KEY_2)
+	else if(key == GLFW_KEY_2 && action != GLFW_RELEASE)
 	{
 		if(mapType != 2)
 		{
 			mapType = 2;
-			dirty = true;
-			advance = false;
+			this->reset();
 		}
 	}
-	else if(key == GLFW_KEY_3)
+	else if(key == GLFW_KEY_3 && action != GLFW_RELEASE)
 	{
 		if(mapType != 3)
 		{
 			mapType = 3;
-			dirty = true;
-			advance = false;
+			this->reset();
 		}
 	}
+}
+
+void GUI::reset()
+{
+	octaves = 1;
+	persistence = 0.1;
+	sinPow = 0.0;
+	ringPow = 0.0;
+	dirty = true;
+	advance = false;
 }
 
 void GUI::mousePosCallback(double mouse_x, double mouse_y)

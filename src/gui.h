@@ -39,6 +39,14 @@ public:
 	bool isDirty() { return dirty; }
 	void setClean() { dirty = false; }
 	int getMapType() { return mapType; }
+
+	bool useOctaves() { return toggleOctave; }
+	int numOctaves() { return octaves; }
+	double getPersistence() { return persistence; }
+	double getSinPow() { return sinPow; }
+	double getRingPow() { return ringPow; }
+
+	void reset();
 private:
 	GLFWwindow* window_;
 
@@ -58,6 +66,12 @@ private:
 	bool advance = false;
 	bool dirty = false;
 	int mapType = 1;
+
+	bool toggleOctave = false;
+	int octaves = 1;
+	double persistence = 0.1;
+	double sinPow = 0.0;
+	double ringPow = 0.0;
 
 	glm::vec3 eye_ = glm::vec3(5.0f, 1.0f, camera_distance_);
 	glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);

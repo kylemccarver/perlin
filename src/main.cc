@@ -50,12 +50,15 @@ void ErrorCallback(int error, const char* description) {
 const int mapSizeX = 128;
 const int mapSizeZ = 128;
 const int mapSizeY = 128;
-double heightScale = 1.0;
+double heightScale = 3.0;
 double noiseScale = 0.05;
 double heightMap[mapSizeX][mapSizeZ][mapSizeY];
 
-void generateHeightMap(int type)
+void generateHeightMap(int type, GUI& gui)
 {
+	bool octaveNoise = gui.useOctaves();
+	int numOctaves = gui.numOctaves();
+	double persistence = gui.getPersistence();
 	// Perlin noise
 	if(type == 1)
 	{
@@ -66,7 +69,12 @@ void generateHeightMap(int type)
 			{
 				for(int z = 0; z < mapSizeZ; ++z)
 				{
-					heightMap[x][y][z] = heightScale * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					double n;
+					if(octaveNoise)
+						n = noise.OctavePerlin(noiseScale * x, noiseScale * y, noiseScale * z, numOctaves, persistence);
+					else
+						n = noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					heightMap[x][y][z] = heightScale * n;
 				}
 			}
 		}
@@ -76,14 +84,19 @@ void generateHeightMap(int type)
 		Perlin noise;
 		double xPeriod = 5.0;
 		double yPeriod = 5.0;
-		double power = 5.0;
+		double power = gui.getSinPow();
 		for(int x = 0; x < mapSizeX; ++x)
 		{
 			for(int y = 0; y < mapSizeY; ++y)
 			{
 				for(int z = 0; z < mapSizeZ; ++z)
 				{
-					double val = x * xPeriod / mapSizeX + y * yPeriod / mapSizeY + power * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					double n;
+					if(octaveNoise)
+						n = noise.OctavePerlin(noiseScale * x, noiseScale * y, noiseScale * z, numOctaves, persistence);
+					else
+						n = noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					double val = x * xPeriod / mapSizeX + y * yPeriod / mapSizeY + power * n;
 					heightMap[x][y][z] = fabs(sin(val * 3.14159));
 				}
 			}
@@ -93,16 +106,21 @@ void generateHeightMap(int type)
 	{
 		Perlin noise;
 		double period = 5.0;
-		double power = 0.1;
+		double power = gui.getRingPow();
 		for(int x = 0; x < mapSizeX; ++x)
 		{
 			for(int y = 0; y < mapSizeY; ++y)
 			{
 				for(int z = 0; z < mapSizeZ; ++z)
 				{
+					double n;
+					if(octaveNoise)
+						n = noise.OctavePerlin(noiseScale * x, noiseScale * y, noiseScale * z, numOctaves, persistence);
+					else
+						n = noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
 					double xVal = (x - mapSizeX / 2) / (double)mapSizeX;
 					double yVal = (y - mapSizeY / 2) / (double)mapSizeY;
-					double dist = sqrt(xVal * xVal + yVal * yVal) + power * noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
+					double dist = sqrt(xVal * xVal + yVal * yVal) + power * n;
 					heightMap[x][y][z] = fabs(sin(2 * period * dist * 3.14159));
 				}
 			}
@@ -192,7 +210,7 @@ int main(int argc, char* argv[])
 	vector<glm::uvec3> terrain_faces;
 	int level = 1;
 
-	generateHeightMap(1);
+	generateHeightMap(1, gui);
 	generateTerrain(floor_vertices, floor_faces, 0);
 
 	glm::vec4 light_position = glm::vec4(5.0f, 10.0f, 5.0f, 1.0f);
@@ -328,7 +346,7 @@ int main(int argc, char* argv[])
 			gui.setClean();
 			gui.stopAdvance();
 
-			generateHeightMap(gui.getMapType());
+			generateHeightMap(gui.getMapType(), gui);
 
 			floor_vertices.clear();
 			floor_faces.clear();
