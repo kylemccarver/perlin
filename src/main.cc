@@ -137,7 +137,7 @@ double minZ = 0.0;
 double maxZ = 10.0;
 double dZ = (maxZ - minZ) / (mapSizeZ - 1);
 
-void generateTerrain(vector<glm::vec4>& vertices, vector<glm::uvec3>& indices, int level)
+void generateTerrain(vector<glm::vec4>& vertices, vector<glm::uvec3>& indices, vector<glm::vec4>& colors, int level)
 {
 	for(int x = 0; x < mapSizeX; ++x)
 	{
@@ -148,6 +148,12 @@ void generateTerrain(vector<glm::vec4>& vertices, vector<glm::uvec3>& indices, i
 			double posY = heightMap[x][z][level];
 
 			vertices.push_back(glm::vec4(posX, posY, posZ, 1.0));
+			if(posY >= 0.7 * heightScale)
+				colors.push_back(glm::vec4(1.0, 1.0, 1.0, 1.0));
+			else if(posY >= 0.4 * heightScale)
+				colors.push_back(glm::vec4(0.2, 0.1, 0.0, 1.0));
+			else
+				colors.push_back(glm::vec4(0.0, 1.0, 0.0, 1.0));
 		}
 	}
 
@@ -204,15 +210,14 @@ int main(int argc, char* argv[])
 
 	std::vector<glm::vec4> floor_vertices;
 	std::vector<glm::uvec3> floor_faces;
+	std::vector<glm::vec4> floor_colors;
 	//create_floor(floor_vertices, floor_faces);
 
 	// FIXME: add code to create terrain geometry
-	vector<glm::vec4> terrain_vertices;
-	vector<glm::uvec3> terrain_faces;
 	int level = 1;
 
 	generateHeightMap(1, gui);
-	generateTerrain(floor_vertices, floor_faces, 0);
+	generateTerrain(floor_vertices, floor_faces, floor_colors, 0);
 
 	glm::vec4 light_position = glm::vec4(5.0f, 10.0f, 5.0f, 1.0f);
 	MatrixPointers mats; // Define MatrixPointers here for lambda to capture
@@ -299,18 +304,10 @@ int main(int argc, char* argv[])
 
 	// FIXME: Create the RenderPass objects for terrain here.
 	//        Otherwise do whatever you like.
-	RenderDataInput terrain_pass_input;
-	terrain_pass_input.assign(0, "vertex_position", terrain_vertices.data(), terrain_vertices.size(), 4, GL_FLOAT);
-	terrain_pass_input.assign_index(terrain_faces.data(), terrain_faces.size(), 3);
-	RenderPass terrain_pass(-1,
-			terrain_pass_input,
-			{ vertex_shader, geometry_shader, fragment_shader },
-			{ std_view, std_proj, std_light, std_camera },
-			{ "fragment_color" }
-			);
 
 	RenderDataInput floor_pass_input;
 	floor_pass_input.assign(0, "vertex_position", floor_vertices.data(), floor_vertices.size(), 4, GL_FLOAT);
+	floor_pass_input.assign(3, "color", floor_colors.data(), floor_colors.size(), 4, GL_FLOAT);
 	floor_pass_input.assign_index(floor_faces.data(), floor_faces.size(), 3);
 	RenderPass floor_pass(-1,
 			floor_pass_input,
@@ -322,6 +319,7 @@ int main(int argc, char* argv[])
 
 	bool draw_floor = true;
 	bool draw_object = true;
+	gui.displayValues();
 
 	while (!glfwWindowShouldClose(window)) {
 		// Setup some basic window stuff.
@@ -351,9 +349,11 @@ int main(int argc, char* argv[])
 
 			floor_vertices.clear();
 			floor_faces.clear();
+			floor_colors.clear();
 
-			generateTerrain(floor_vertices, floor_faces, 0);
+			generateTerrain(floor_vertices, floor_faces, floor_colors, 0);
 			floor_pass.updateVBO(0, floor_vertices.data(), floor_vertices.size());
+			floor_pass.updateVBO(3, floor_colors.data(), floor_colors.size());
 			floor_pass = RenderPass(floor_pass.getVAO(),
 					floor_pass_input,
 					{ vertex_shader, geometry_shader, floor_fragment_shader },
@@ -369,8 +369,9 @@ int main(int argc, char* argv[])
 
 			floor_vertices.clear();
 			floor_faces.clear();
+			floor_colors.clear();
 
-			generateTerrain(floor_vertices, floor_faces, level);
+			generateTerrain(floor_vertices, floor_faces, floor_colors, level);
 			floor_pass.updateVBO(0, floor_vertices.data(), floor_vertices.size());
 			floor_pass = RenderPass(floor_pass.getVAO(),
 					floor_pass_input,

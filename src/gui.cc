@@ -58,6 +58,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 				--octaves;
 			dirty = true;
 			advance = false;
+			displayValues();
 		}
 	}
 	else if(key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
@@ -67,6 +68,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 			++octaves;
 			dirty = true;
 			advance = false;
+			displayValues();
 		}
 	}
 	else if(key == GLFW_KEY_SEMICOLON && action != GLFW_RELEASE)
@@ -77,6 +79,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 				persistence -= 0.1;
 			dirty = true;
 			advance = false;
+			displayValues();
 		}
 	}
 	else if(key == GLFW_KEY_APOSTROPHE && action != GLFW_RELEASE)
@@ -86,6 +89,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 			persistence += 0.1;
 			dirty = true;
 			advance = false;
+			displayValues();
 		}
 	}
 	else if(key == GLFW_KEY_COMMA && action != GLFW_RELEASE)
@@ -96,6 +100,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 			ringPow -= 0.1;
 		dirty = true;
 		advance = false;
+		displayValues();
 	}
 	else if(key == GLFW_KEY_PERIOD && action != GLFW_RELEASE)
 	{
@@ -105,18 +110,21 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 			ringPow += 0.1;
 		dirty = true;
 		advance = false;
+		displayValues();
 	}
 	else if(key == GLFW_KEY_LEFT && action != GLFW_RELEASE)
 	{
 		height -= 1.0;
 		dirty = true;
 		advance = false;
+		displayValues();
 	}
 	else if(key == GLFW_KEY_RIGHT && action != GLFW_RELEASE)
 	{
 		height += 1.0;
 		dirty = true;
 		advance = false;
+		displayValues();
 	}
 	else if(key == GLFW_KEY_1 && action != GLFW_RELEASE)
 	{
@@ -153,6 +161,22 @@ void GUI::reset()
 	ringPow = 0.0;
 	dirty = true;
 	advance = false;
+	displayValues();
+}
+
+void GUI::displayValues()
+{
+	std::cout << ">>>>>>>>>>>>>>>>\n";
+	std::cout << "Using octaves: " << toggleOctave << "\n";
+	std::cout << "Height: " << height << "\n";
+	std::cout << "Octaves: " << octaves << "\n";
+	std::cout << "Persistence: " << persistence << "\n";
+	std::cout << "Power: ";
+	if(mapType == 2)
+		std::cout << sinPow << "\n";
+	else
+		std::cout << ringPow << "\n";
+	std::cout << ">>>>>>>>>>>>>>>>" << std::endl;
 }
 
 void GUI::mousePosCallback(double mouse_x, double mouse_y)

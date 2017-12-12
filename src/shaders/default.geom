@@ -9,12 +9,14 @@ in vec4 vs_light_direction[];
 in vec4 vs_camera_direction[];
 in vec4 vs_normal[];
 in vec2 vs_uv[];
+in vec4 vs_color[];
 out vec4 face_normal;
 out vec4 light_direction;
 out vec4 camera_direction;
 out vec4 world_position;
 out vec4 vertex_normal;
 out vec2 uv_coords;
+out vec4 vertex_color;
 void main() {
 	int n = 0;
 	vec3 a = gl_in[0].gl_Position.xyz;
@@ -30,6 +32,7 @@ void main() {
 		vertex_normal = vs_normal[n];
 		uv_coords = vs_uv[n];
 		gl_Position = projection * view * model * gl_in[n].gl_Position;
+		vertex_color = vs_color[n];
 		EmitVertex();
 	}
 	EndPrimitive();

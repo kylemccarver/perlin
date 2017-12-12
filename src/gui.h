@@ -47,6 +47,8 @@ public:
 	double getSinPow() { return sinPow; }
 	double getRingPow() { return ringPow; }
 
+	void displayValues();
+
 	void reset();
 private:
 	GLFWwindow* window_;
