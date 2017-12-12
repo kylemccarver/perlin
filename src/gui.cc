@@ -114,10 +114,13 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 	}
 	else if(key == GLFW_KEY_LEFT && action != GLFW_RELEASE)
 	{
-		height -= 1.0;
-		dirty = true;
-		advance = false;
-		displayValues();
+		if(height > 0.0)
+		{
+			height -= 1.0;
+			dirty = true;
+			advance = false;
+			displayValues();
+		}
 	}
 	else if(key == GLFW_KEY_RIGHT && action != GLFW_RELEASE)
 	{
@@ -131,6 +134,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		if(mapType != 1)
 		{
 			mapType = 1;
+			toggleOctave = false;
 			this->reset();
 		}
 	}
@@ -139,6 +143,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		if(mapType != 2)
 		{
 			mapType = 2;
+			toggleOctave = false;
 			this->reset();
 		}
 	}
@@ -147,6 +152,7 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		if(mapType != 3)
 		{
 			mapType = 3;
+			toggleOctave = false;
 			this->reset();
 		}
 	}

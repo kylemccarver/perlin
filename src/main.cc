@@ -98,7 +98,7 @@ void generateHeightMap(int type, GUI& gui)
 					else
 						n = noise.perlin(noiseScale * x, noiseScale * y, noiseScale * z);
 					double val = x * xPeriod / mapSizeX + y * yPeriod / mapSizeY + power * n;
-					heightMap[x][y][z] = fabs(sin(val * 3.14159));
+					heightMap[x][y][z] = heightScale * fabs(sin(val * 3.14159));
 				}
 			}
 		}
@@ -122,7 +122,7 @@ void generateHeightMap(int type, GUI& gui)
 					double xVal = (x - mapSizeX / 2) / (double)mapSizeX;
 					double yVal = (y - mapSizeY / 2) / (double)mapSizeY;
 					double dist = sqrt(xVal * xVal + yVal * yVal) + power * n;
-					heightMap[x][y][z] = fabs(sin(2 * period * dist * 3.14159));
+					heightMap[x][y][z] = heightScale * fabs(sin(2 * period * dist * 3.14159));
 				}
 			}
 		}
@@ -150,7 +150,7 @@ void generateTerrain(vector<glm::vec4>& vertices, vector<glm::uvec3>& indices, v
 			vertices.push_back(glm::vec4(posX, posY, posZ, 1.0));
 			if(posY >= 0.7 * heightScale)
 				colors.push_back(glm::vec4(1.0, 1.0, 1.0, 1.0));
-			else if(posY >= 0.4 * heightScale)
+			else if(posY >= 0.45 * heightScale)
 				colors.push_back(glm::vec4(0.2, 0.1, 0.0, 1.0));
 			else
 				colors.push_back(glm::vec4(0.0, 1.0, 0.0, 1.0));
