@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kyle McCarver</title>
+</head>
+<body>
+
+<h1>CS354 Final Graphics Project: Perlin Noise Animated Terrain</h1>
+<h2>Background</h2>
+<p>
+Perlin noise is a pseudo-random algorithm that produces smooth noise by combining 
+multiple smooth noise functions. Each noise function is defined by an
+amplitude (range of values), frequency (period over which data is sampled)
+and persistence (level of influence contributed by the function). These
+functions are often referred to as "octaves." To create smooth noise,
+the values contributed by each octave are scaled by their persistence and
+interpolated together to produce a final noise texture with more structure
+than pure random noise.
+</p>
+<p>
+Perlin noise is often used for procedural generation of natural-looking
+textures. The scope of its applications have ranged from movies and games to
+image processing. It can generate terrain, produce animated textures,
+ model population densities, and create artistically interesting effects.
+</p>
+
+<h2>Description</h2>
+<p>
+In this project, 3D Perlin noise is used to create an array of height maps.
+The values in each height map are interpreted as vertex positions in space, 
+so that OpenGL can construct geometry to render a 3D surface. The surface is
+then shaded based on the height at a particular vertex to mimic the appearance
+of terrain. Finally, to animate the terrain, the current height map is swapped
+out for the next map in the array which produces new geometry, creating the
+appearence of dynamically changing terrain.<br><br>
+
+My project has three map types:<br>
+<ul>
+	<li>Perlin</li>
+	<li>sin(x + y)</li>
+	<li>sin(x^2 + y^2)</li>
+</ul>
+
+The user is able to change the height of the terrain and select the map type, 
+as well as parameterize the number of octaves, amplitude, and persistence for 
+the noise octaves. For map types other than Perlin, the user can also control
+the power of the function to create more interesting effects.
+</p>
+
+<h2>Artifacts</h2>
+<p>
+Terrain that has been parameterized by the user
+</p>
+<img src="graphics/parameterized.png" alt="Parameterized terrain" width="400" height="300">
+<p>
+Other map types
+</p>
+<img src="graphics/sin.png" alt="Sin map type" width="400" height="300">
+<img src="graphics/ring.png" alt="Ring map type" width="400" height="300">
+<p>
+Increasing the power of the functions results in more winding terrain
+</p>
+<img src="graphics/sinpow.png" alt="Sin power" width="400" height=300">
+<img src="graphics/ringpow.png" alt="Ring power" width="400" height="300">
+<p>
+Video of the user changing the height
+</p>
+<video width="400" height="300" controls>
+<source src="graphics/height.mp4" type="video/mp4">
+What
+</video>
+<p>
+Videos of animated terrain
+</p>
+<video width="400" height="300" controls>
+<source src="graphics/wiggle.mp4" type="video/mp4">
+Hi
+</video>
+<video width="400" height="300" controls>
+<source src="graphics/sinwiggle.mp4" type="video/mp4">
+Sin
+</video>
+<video width="400" height="300" controls>
+<source src="graphics/ringwiggle.mp4" type="video/mp4">
+Ring
+</video>
+
+<h2>References</h2>
+<p>
+<ol>
+<li><a href="mrl.nyu.edu/~perlin/paper445.pdf" target="_blank">Improving Noise</a></li>
+<li><a href="http://flafla2.github.io/2014/08/09/perlinnoise.html" target="_blank">
+Understanding Perlin Noise</a></li>
+<li><a href="http://lodev.org/cgtutor/randomnoise.html" target="_blank">
+Texture Generation using Random Noise</a></li>
+</ol>
+</p>
+
+</body>
+</html>
